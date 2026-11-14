@@ -189,6 +189,31 @@ textarea.in{resize:vertical}
 #pz.fit .pzin img{width:min(100%,900px)}
 #pzx{position:fixed;top:8px;right:14px;z-index:2;color:#fff;font-size:38px;line-height:1}
 .pzh{position:fixed;bottom:8px;left:0;right:0;text-align:center;color:#ddd;font-size:12px}
+.simg{max-width:100%;max-height:55%;border-radius:16px;object-fit:contain;background:#fff}
+.nph{position:absolute;left:10px;bottom:10px;background:rgba(0,0,0,.6);color:#fff;border-radius:99px;padding:3px 9px;font-size:12px;font-weight:800}
+.ph img[data-pid]{cursor:pointer}
+.fc{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-top:14px}
+.fc h3{font-size:19px}
+.fc .l{font-size:13px;color:var(--muted);margin:2px 0 8px}
+.ap{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:10px 0;border-top:1px dashed var(--line);font-size:14px}
+.apf{display:flex;gap:6px}
+.apf img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.th2{display:grid;gap:3px;font-size:12px;font-weight:700;text-align:center}
+.th2 img{width:78px;height:78px;object-fit:cover;border-radius:10px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.acts .btn{background:#fff;cursor:pointer;font:inherit;font-weight:800;font-size:14px}
+.acts .btn.f{background:var(--green)}
+.acts .danger{border-color:var(--red);color:var(--red)}
+.bdg{display:inline-block;border-radius:99px;padding:3px 10px;font-size:12px;font-weight:800;background:#f2e8cc}
+.bdg.aprobada{background:#d9f0df;color:var(--green-d)}.bdg.rechazada{background:#fbe0e0;color:var(--red)}
+.btn.verde,.btn.rojo{min-height:44px;color:#fff;cursor:pointer;font:inherit;font-weight:800;font-size:15px;padding:10px 18px}
+.btn.verde{background:var(--wa);border-color:var(--wa)}
+.btn.verde:hover{background:#17924b}
+.btn.rojo{background:var(--red);border-color:var(--red)}
+.btn.rojo:hover{background:#a8181f}
+.motivo{margin-top:12px;background:#fdecec;border:2px solid var(--red);border-radius:14px;padding:12px}
+.motivo textarea{margin-top:6px}
+.mot-r{margin-top:8px;font-size:14px;color:var(--red);font-weight:700}
 footer{background:var(--green-d);color:#e9e2cc;padding:24px 0;font-size:14px}
 footer .wrap{display:grid;gap:6px;text-align:center}
 </style>
@@ -255,6 +280,35 @@ footer .wrap{display:grid;gap:6px;text-align:center}
   <div class="empgrid" id="empgrid"></div>
 </section>
 
+<!-- ADMIN -->
+<section class="view" id="v-admin">
+  <h2 class="t">Panel de administración</h2>
+  <p class="sub">Revisá las fichas que mandan los emprendedores y publicalas en el catálogo.</p>
+  <div id="adm-login"><button class="btn f" id="adm-in">Ingresar con Google</button></div>
+  <p id="adm-msg" style="margin:10px 0;font-weight:700"></p>
+  <div id="adm-main" hidden>
+    <div class="resrow" style="margin:0 0 12px"><span>Sesión: <b id="adm-user"></b></span><button class="linkbtn" id="adm-out">Salir</button></div>
+    <div class="chips" id="adm-tabs"></div>
+    <div id="adm-list"></div>
+    <div id="adm-ferias" hidden>
+      <div class="fc"><h3 id="fh">Nueva feria</h3>
+        <div class="ff two" style="margin-top:10px">
+          <label>Fecha *<input class="in" type="date" id="fe-fecha"></label>
+          <label>Horario<input class="in" id="fe-hora" maxlength="30" placeholder="Ej: 16 a 21 h"></label>
+          <label>Lugar *<input class="in" id="fe-lugar" maxlength="80" placeholder="Ej: Plaza San Martín"></label>
+          <label>Descripción<input class="in" id="fe-desc" maxlength="140"></label></div>
+        <p class="hint" style="margin-top:12px">Tocá el mapa para marcar el lugar exacto *</p>
+        <div id="adm-map" style="height:260px;border-radius:14px;margin-top:6px;z-index:1"></div>
+        <p class="hint" id="fe-ll"></p>
+        <p style="margin-top:12px;font-weight:700;font-size:14px">Emprendedores que van:</p>
+        <div class="chips" id="fe-emps" style="margin-top:6px"></div>
+        <div class="acts"><button class="btn f" id="fe-save">Guardar feria</button><button class="btn" id="fe-cancel" hidden>Cancelar edición</button></div>
+      </div>
+      <div id="fe-list"></div>
+    </div>
+  </div>
+</section>
+
 <!-- BARRIOS -->
 <section class="view" id="v-barrios">
   <h2 class="t">Mapa y barrios de El Colorado</h2>
@@ -306,8 +360,9 @@ footer .wrap{display:grid;gap:6px;text-align:center}
   </div>
   <div class="panel" style="margin-top:18px">
     <h3 style="font-size:21px">📝 Ficha para sumarte</h3>
-    <p class="sub" style="margin:4px 0 14px">Completá los datos y subí las fotos desde tu celular o computadora. Al enviar se abre WhatsApp para mandar todo a la administración (<b id="adminnum"></b>).</p>
+    <p class="sub" id="introficha" style="margin:4px 0 14px">Completá los datos y subí las fotos desde tu celular o computadora. Al enviar se abre WhatsApp para mandar todo a la administración (<b id="adminnum"></b>).</p>
     <form id="ficha" autocomplete="off" novalidate>
+      <input name="web" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0">
       <div class="ff two">
         <label>Nombre del emprendimiento *<input class="in" name="emp" required maxlength="60"></label>
         <label>Tu nombre *<input class="in" name="resp" required maxlength="60"></label>
@@ -324,6 +379,11 @@ footer .wrap{display:grid;gap:6px;text-align:center}
         <button type="button" class="sec" id="copiar">📋 Copiar ficha</button>
         <a class="sec" id="formlink" href="#" target="_blank" rel="noopener" hidden style="text-decoration:none">Prefiero Google Forms</a>
       </div>
+      <div id="ok" hidden style="margin-top:14px;background:#e9f7ee;border:2px solid var(--wa);border-radius:14px;padding:14px">
+        <b>✅ ¡Ficha enviada!</b>
+        <p style="font-size:14px;margin:6px 0 10px">La administración la revisa y, cuando la apruebe, aparece sola en el catálogo. Si querés, avisales por WhatsApp para que la vean más rápido.</p>
+        <a class="wa" id="wanotif" href="#" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;padding:12px 18px">💬 Avisar a la administración</a>
+      </div>
       <div id="post" hidden style="margin-top:14px;background:#e9f7ee;border:2px solid var(--wa);border-radius:14px;padding:14px">
         <b>✅ Ficha lista para enviar</b>
         <p style="font-size:14px;margin:6px 0 10px">Se abre WhatsApp con el mensaje para la administración: tocá <b>Enviar</b> allá. Si no se abrió, usá este botón:</p>
@@ -339,6 +399,7 @@ footer .wrap{display:grid;gap:6px;text-align:center}
 <footer><div class="wrap">
   <b>Tu Feria Digital Coloradense · El Colorado, Formosa</b>
   <span>Los precios son de referencia y se confirman por WhatsApp. Consultá siempre stock y envío.</span>
+  <a href="#admin" style="color:#cfc7ab;font-size:12px">Administración</a>
   <span>Mapas © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" style="color:#fff">OpenStreetMap</a></span>
 </div></footer>
 
@@ -360,6 +421,16 @@ footer .wrap{display:grid;gap:6px;text-align:center}
    CONFIGURACIÓN — editá solo esta parte para actualizar el directorio
    ====================================================================== */
 const ADMIN_WA = "5493704311626"; // WhatsApp de la administración (549 + código de área + número, sin signos)
+// ---- FIREBASE: pegá acá los datos de tu proyecto (Configuración del proyecto → Tus apps → Web). Mientras diga "PEGAR", la página funciona en modo demostración.
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDFWhrsiR50RBucpQF4DBMYFArajsO7zpA",
+  authDomain: "feria-digital-local.firebaseapp.com",
+  projectId: "feria-digital-local",
+  storageBucket: "feria-digital-local.firebasestorage.app",
+  messagingSenderId: "40464003131",
+  appId: "1:40464003131:web:58d08fa8948e8adc0d6c1e"
+};
+const LIVE = !!FIREBASE_CONFIG.projectId && !/PEGAR/.test(FIREBASE_CONFIG.apiKey);
 const FORM_URL = "";               // (opcional) link de un Google Forms; si lo pegás acá aparece un botón alternativo
 const CENTRO = [-26.3167, -59.3667];                               // El Colorado, Formosa (aprox.)
 
@@ -434,7 +505,11 @@ const FERIAS = [
 
 /* ====================================================================== */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const EMPBY=Object.fromEntries(EMPS.map(e=>[e.id,e]));
+if(LIVE){EMPS.length=0;PRODS.length=0;FERIAS.length=0}   // con Firebase activo, los datos de ejemplo no se usan
+let estado=LIVE?"cargando":"ok";
+const EMPBY={};
+function reindex(){for(const k in EMPBY)delete EMPBY[k];EMPS.forEach(e=>EMPBY[e.id]=e)}
+reindex();
 const money=n=>"$ "+new Intl.NumberFormat("es-AR").format(n);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const norm=s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
@@ -490,18 +565,20 @@ function filtrar(){
   if(F.orden==="pa")r.sort((a,b)=>a.precio-b.precio);
   else if(F.orden==="pd")r.sort((a,b)=>b.precio-a.precio);
   else if(F.orden==="az")r.sort((a,b)=>a.nombre.localeCompare(b.nombre,"es"));
-  else r.sort((a,b)=>near(a)-near(b)||a.id-b.id);
+  else r.sort((a,b)=>near(a)-near(b));
   return r;
 }
 function render(){
   const r=filtrar();
   $("#count").textContent=r.length===1?"1 producto encontrado":r.length+" productos encontrados";
+  if(!PRODS.length&&estado!=="ok"){$("#grid").innerHTML=`<div class="empty"><div style="font-size:44px">${estado==="error"?"📡":"⏳"}</div><p>${estado==="error"?"No pudimos cargar el catálogo. Revisá tu conexión e intentá de nuevo.":"Cargando el catálogo…"}</p></div>`;$("#count").textContent="";return}
+  if(!PRODS.length){$("#grid").innerHTML=`<div class="empty"><div style="font-size:44px">🌱</div><p><b>Estamos sumando los primeros emprendimientos.</b><br>¿Tenés el tuyo? Mirá la pestaña “Sumate / Reglas”.</p></div>`;$("#count").textContent="";return}
   if(!r.length){$("#grid").innerHTML=`<div class="empty"><div style="font-size:44px">🔍</div><p><b>No encontramos nada con esos filtros.</b><br>Probá con otra palabra o limpiá los filtros.</p></div>`;return}
   $("#grid").innerHTML=r.map(p=>{
     const e=EMPBY[p.emp], img=p.foto||svgPh(p.e,p.c), cerca=F.barrio&&e.barrio===F.barrio;
     return `<article class="card">
-      <div class="ph"><img src="${esc(img)}" alt="${esc(p.nombre)}" loading="lazy">
-        <span class="tag">${esc(p.nombre)}</span>${cerca?'<span class="tag r">📍 En tu barrio</span>':(p.semana?'<span class="tag r">🖐️ Esta semana</span>':'')}</div>
+      <div class="ph"><img src="${esc(img)}" alt="${esc(p.nombre)}" loading="lazy" data-pid="${esc(p.id)}">${p.fotos&&p.fotos.length>1?`<span class="nph">📷 ${(p.fi||0)+1}/${p.fotos.length}</span>`:""}
+        <span class="tag">${esc(p.nombre)}</span>${cerca?'<span class="tag r">📍 En tu barrio</span>':((p.int||[]).includes("semana")?'<span class="tag r">🖐️ Esta semana</span>':'')}</div>
       <div class="cb">
         <h3>${esc(p.nombre)}</h3>
         <div class="price">${money(p.precio)}<small>precio de referencia</small></div>
@@ -512,7 +589,12 @@ function render(){
       </div></article>`;
   }).join("");
 }
-$("#grid").addEventListener("click",e=>{const b=e.target.closest("[data-emp]");if(b){go("quien");openStory(b.dataset.emp)}});
+$("#grid").addEventListener("click",e=>{
+  const b=e.target.closest("[data-emp]");if(b){go("quien");openStory(b.dataset.emp);return}
+  const im=e.target.closest("img[data-pid]");if(!im)return;
+  const p=PRODS.find(x=>String(x.id)===im.dataset.pid);
+  if(p&&p.fotos&&p.fotos.length>1){p.fi=((p.fi||0)+1)%p.fotos.length;im.src=p.fotos[p.fi];const n=im.parentNode.querySelector(".nph");if(n)n.textContent=`📷 ${p.fi+1}/${p.fotos.length}`}
+});
 
 /* ---------- Quién lo hace ---------- */
 const seen=new Set(JSON.parse(store("ferial_seen")||"[]"));
@@ -535,7 +617,7 @@ function showSlide(){
   $("#sbox").style.background=`linear-gradient(160deg,${s.bg},#1b1b1b)`;
   $("#sav").textContent=cur.emoji;$("#snom").textContent=cur.nombre;$("#sbar").textContent="Barrio "+cur.barrio+" · "+cur.dueno;
   $("#bars").innerHTML=cur.historia.map((_,i)=>`<i><b style="width:${i<idx?100:0}%"></b></i>`).join("");
-  $("#sbody").innerHTML=s.video?`<video src="${esc(s.video)}" autoplay playsinline controls></video><p>${esc(s.t)}</p>`:`<div class="em">${s.e}</div><p>${esc(s.t)}</p>`;
+  $("#sbody").innerHTML=s.img?`<img class="simg" src="${esc(s.img)}" alt=""><p>${esc(s.t)}</p>`:s.video?`<video src="${esc(s.video)}" autoplay playsinline controls></video><p>${esc(s.t)}</p>`:`<div class="em">${s.e}</div><p>${esc(s.t)}</p>`;
   const prod=PRODS.find(p=>p.emp===cur.id);
   $("#sfoot").innerHTML=`<a class="wa" href="${waLink(cur,prod)}" target="_blank" rel="noopener">💬 Consultar por WhatsApp</a>`;
   t0=Date.now();const bar=$$("#bars i b")[idx];
@@ -549,8 +631,9 @@ document.addEventListener("keydown",e=>{if(!$("#sv").classList.contains("on"))re
 
 /* ---------- Barrios / plano ---------- */
 (function(){
-  const cnt=b=>PRODS.filter(p=>EMPBY[p.emp].barrio===b).length;
-  $("#barchips").innerHTML=BARRIOS.map(b=>`<button class="chip" data-b="${esc(b)}">${esc(b)}${cnt(b)?` · ${cnt(b)}`:""}</button>`).join("");
+  const cnt=b=>PRODS.filter(p=>EMPBY[p.emp]&&EMPBY[p.emp].barrio===b).length;
+  window.renderBarChips=()=>{$("#barchips").innerHTML=BARRIOS.map(b=>`<button class="chip" data-b="${esc(b)}">${esc(b)}${cnt(b)?` · ${cnt(b)}`:""}</button>`).join("")};
+  renderBarChips();
   $("#barchips").addEventListener("click",e=>{const c=e.target.closest("[data-b]");if(!c)return;
     F.barrio=c.dataset.b;F.solo=true;$("#barrio").value=F.barrio;$("#solo").checked=true;store("ferial_barrio",F.barrio);render();go("catalogo")});
   const pz=$("#pz"),im=pz.querySelector("img"),src=$("#planobtn img").src;$("#planodl").href=src;
@@ -562,7 +645,9 @@ document.addEventListener("keydown",e=>{if(!$("#sv").classList.contains("on"))re
 
 /* ---------- Ferias: calendario + mapa ---------- */
 let map=null,markers={},selDate=null,view=new Date();view.setDate(1);
-const evByDate={};FERIAS.forEach((f,i)=>{f.i=i;(evByDate[f.fecha]=evByDate[f.fecha]||[]).push(f)});
+const evByDate={};
+function indexFerias(){for(const k in evByDate)delete evByDate[k];FERIAS.sort((a,b)=>a.fecha.localeCompare(b.fecha));FERIAS.forEach((f,i)=>{f.i=i;(evByDate[f.fecha]=evByDate[f.fecha]||[]).push(f)})}
+indexFerias();
 const hoyISO=iso(new Date());
 function renderCal(){
   $("#mes").textContent=view.toLocaleDateString("es-AR",{month:"long",year:"numeric"});
@@ -581,9 +666,10 @@ $("#next").onclick=()=>{view.setMonth(view.getMonth()+1);renderCal()};
 function fechaLarga(k){const[y,m,d]=k.split("-").map(Number);return new Date(y,m-1,d).toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"})}
 function renderEv(){
   const list=selDate?evByDate[selDate]||[]:FERIAS.filter(f=>f.fecha>=hoyISO).slice(0,2);
+  if(!list.length){$("#evlist").innerHTML=`<p class="sub">${selDate?"No hay ferias ese día.":"Todavía no hay ferias cargadas. ¡Pronto vamos a anunciar la próxima!"}</p>`;return}
   $("#evlist").innerHTML=(selDate?"":`<p class="sub" style="margin:0">📌 Próximas ferias (tocá un día marcado para ver otra fecha)</p>`)+
-   list.map(f=>`<div class="ev-c on" data-i="${f.i}"><h4>📍 ${esc(f.lugar)}</h4><p style="text-transform:capitalize;font-weight:700">${fechaLarga(f.fecha)} · ${f.hora}</p><p>${esc(f.desc)}</p>
-   <div class="who">${f.emps.map(id=>`<span>${EMPBY[id].emoji} ${esc(EMPBY[id].nombre)}</span>`).join("")}</div>
+   list.map(f=>`<div class="ev-c on" data-i="${f.i}"><h4>📍 ${esc(f.lugar)}</h4><p style="text-transform:capitalize;font-weight:700">${fechaLarga(f.fecha)} · ${esc(f.hora)}</p><p>${esc(f.desc)}</p>
+   <div class="who">${f.emps.filter(id=>EMPBY[id]).map(id=>`<span>${EMPBY[id].emoji} ${esc(EMPBY[id].nombre)}</span>`).join("")}</div>
    <p style="margin-top:8px"><a href="https://www.openstreetmap.org/?mlat=${f.lat}&mlon=${f.lng}#map=17/${f.lat}/${f.lng}" target="_blank" rel="noopener">Ver en OpenStreetMap ↗</a> · <a href="https://www.openstreetmap.org/directions?to=${f.lat}%2C${f.lng}" target="_blank" rel="noopener">Cómo llegar →</a></p></div>`).join("")
    ||`<p class="sub">No hay ferias ese día.</p>`;
   if(map&&list.length){
@@ -593,15 +679,20 @@ function renderEv(){
   }
 }
 $("#evlist").addEventListener("click",e=>{const c=e.target.closest("[data-i]");if(c&&map){const f=FERIAS[c.dataset.i];map.flyTo([f.lat,f.lng],16);markers[f.i].openPopup()}});
+function pintarMarkers(){
+  if(!map)return;
+  Object.values(markers).forEach(m=>m.remove());for(const k in markers)delete markers[k];
+  FERIAS.forEach(f=>{
+    markers[f.i]=L.marker([f.lat,f.lng]).addTo(map).bindPopup(`<b>${esc(f.lugar)}</b><br><span style="text-transform:capitalize">${fechaLarga(f.fecha)}</span><br>${esc(f.hora)}<br>${f.emps.filter(id=>EMPBY[id]).length} emprendedores`)
+      .on("click",()=>{selDate=f.fecha;const d=new Date(f.fecha+"T00:00");view=new Date(d.getFullYear(),d.getMonth(),1);renderCal();renderEvOnly(f)});
+  });
+}
 function initMap(){
   if(map)return;
   if(!window.L){$("#map").innerHTML=`<div class="mapfail">No se pudo cargar el mapa. Revisá tu conexión.<br>Podés ver los lugares en la lista de ferias.</div>`;return}
   map=L.map("map",{scrollWheelZoom:false}).setView(CENTRO,14);
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(map);
-  FERIAS.forEach(f=>{
-    markers[f.i]=L.marker([f.lat,f.lng]).addTo(map).bindPopup(`<b>${esc(f.lugar)}</b><br><span style="text-transform:capitalize">${fechaLarga(f.fecha)}</span><br>${f.hora}<br>${f.emps.length} emprendedores`)
-      .on("click",()=>{selDate=f.fecha;const d=new Date(f.fecha+"T00:00");view=new Date(d.getFullYear(),d.getMonth(),1);renderCal();renderEvOnly(f)});
-  });
+  pintarMarkers();
   renderEv();
 }
 function renderEvOnly(f){document.querySelectorAll("#evlist .ev-c").forEach(c=>c.classList.toggle("on",+c.dataset.i===f.i))}
@@ -622,10 +713,10 @@ function addProd(){
     <label>Tipo de producto *<select class="in p-t" required><option value="">Elegí…</option>${TIPOS.map(t=>`<option>${t}</option>`).join("")}</select></label>
   </div>
   <label style="margin-top:12px">Descripción corta *<textarea class="in p-d" rows="2" maxlength="120" required></textarea></label>
-  <label style="margin-top:12px">📷 Fotos del producto (hasta 3)<input class="in p-img" type="file" accept="image/*" multiple></label>
+  <label style="margin-top:12px">📷 Fotos del producto (hasta 2)<input class="in p-img" type="file" accept="image/*" multiple></label>
   <div class="hint">Mejor con luz natural y fondo liso. Se achican solas para enviarse rápido.</div>
   <div class="thumbs"></div>
-  <div class="chips" style="margin-top:10px">${INTENCIONES.map(i=>`<label class="chk"><input type="checkbox" value="${esc(i.label)}"> ${i.label}</label>`).join("")}</div>`;
+  <div class="chips" style="margin-top:10px">${INTENCIONES.map(i=>`<label class="chk"><input type="checkbox" value="${i.id}"> ${i.label}</label>`).join("")}</div>`;
   $("#prods").appendChild(d);
 }
 $("#addprod").onclick=addProd;
@@ -635,14 +726,14 @@ function fichaTexto(){
   let t=`*NUEVA FICHA · Tu Feria Digital Coloradense*\n\nEmprendimiento: ${v("emp")}\nResponsable: ${v("resp")}\nBarrio: ${v("barrio")}\nWhatsApp: ${v("tel")}\nRetiro / entrega: ${v("retiro")}`;
   if(v("hist"))t+=`\nHistoria: ${v("hist")}`;
   $$("#prods .pb").forEach((b,i)=>{
-    const q=s=>b.querySelector(s),ints=[...b.querySelectorAll("input[type=checkbox]:checked")].map(x=>x.value).join(", ");
+    const q=s=>b.querySelector(s),ints=[...b.querySelectorAll("input[type=checkbox]:checked")].map(x=>(INTENCIONES.find(i=>i.id===x.value)||{}).label||x.value).join(", ");
     t+=`\n\n*Producto ${i+1}*\nNombre: ${q(".p-n").value.trim()}\nPrecio: ${money(+q(".p-p").value)}\nTipo: ${q(".p-t").value}`+(ints?`\nIntención: ${ints}`:"")+`\nDescripción: ${q(".p-d").value.trim()}\nFotos: ${b._files.length?b._files.length+" adjuntas":"las envío por este chat"}`;
   });
   return t+"\n\nConfirmo que los precios son de referencia y se confirman por WhatsApp.";
 }
 $("#adminnum").textContent="+"+ADMIN_WA.replace(/^549(\d{4})(\d+)$/,"54 9 $1 $2");
 function comprimir(file){return new Promise(res=>{const img=new Image(),u=URL.createObjectURL(file);
-  img.onload=()=>{const r=Math.min(1,1280/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*r);c.height=Math.round(img.height*r);c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);
+  img.onload=()=>{const r=Math.min(1,1000/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*r);c.height=Math.round(img.height*r);c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);
     c.toBlob(b=>res(b?new File([b],"foto.jpg",{type:"image/jpeg"}):file),"image/jpeg",.82)};
   img.onerror=()=>{URL.revokeObjectURL(u);res(file)};img.src=u})}
 function pintaThumbs(b){const t=b.querySelector(".thumbs");t.innerHTML="";
@@ -650,8 +741,62 @@ function pintaThumbs(b){const t=b.querySelector(".thumbs");t.innerHTML="";
     const x=document.createElement("button");x.type="button";x.textContent="×";x.setAttribute("aria-label","Quitar foto");x.onclick=()=>{b._files.splice(i,1);pintaThumbs(b)};w.append(im,x);t.appendChild(w)})}
 $("#prods").addEventListener("change",async e=>{
   const inp=e.target.closest(".p-img");if(!inp)return;const b=inp.closest(".pb");
-  const nuevos=[...inp.files].slice(0,3-b._files.length);inp.value="";
+  const nuevos=[...inp.files].slice(0,2-b._files.length);inp.value="";
   for(const f of nuevos){b._files.push(await comprimir(f))}pintaThumbs(b)});
+
+/* ---------- Guardado en Firebase ---------- */
+function normTel(raw){
+  let d=String(raw||"").replace(/\D/g,"");
+  if(d.startsWith("549"))d=d;else if(d.startsWith("54"))d="549"+d.slice(2);else d="549"+d.replace(/^0+/,"");
+  return d.length>=12&&d.length<=13?d:"";
+}
+function aDataUrl(file){
+  return new Promise(res=>{
+    const img=new Image(),u=URL.createObjectURL(file);
+    img.onerror=()=>{URL.revokeObjectURL(u);res("")};
+    img.onload=()=>{
+      const pasos=[[720,.7],[640,.62],[560,.55],[480,.5],[400,.45]];let out="";
+      for(const [dim,q] of pasos){
+        const r=Math.min(1,dim/Math.max(img.width,img.height)),c=document.createElement("canvas");
+        c.width=Math.max(1,Math.round(img.width*r));c.height=Math.max(1,Math.round(img.height*r));
+        const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(img,0,0,c.width,c.height);
+        out=c.toDataURL("image/jpeg",q);if(out.length<=60000)break;
+      }
+      URL.revokeObjectURL(u);res(out);
+    };
+    img.src=u;
+  });
+}
+function mostrarOk(obj){
+  $("#ficha").reset();$("#prods").innerHTML="";addProd();$("#post").hidden=true;
+  const t=`Hola, acabo de enviar la ficha de ${obj?obj.emp:"mi emprendimiento"} por la web del directorio. ¿La pueden revisar? Gracias.`;
+  $("#wanotif").href=`https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(t)}`;
+  $("#ok").hidden=false;aviso("",true);$("#ok").scrollIntoView({behavior:"smooth",block:"center"});
+}
+async function guardarFicha(f){
+  const v=n=>f.elements[n].value.trim();
+  if(f.elements.web&&f.elements.web.value){mostrarOk(null);return}          // trampa anti-spam
+  if(Date.now()-(+store("ferial_last")||0)<60000){aviso("Esperá un minuto antes de enviar otra ficha.",false);return}
+  const tel=normTel(v("tel"));
+  if(!tel){aviso("Revisá tu WhatsApp: código de área + número, sin 0 ni 15 (ej: 3704 311626).",false);return}
+  const btn=f.querySelector("button[type=submit]"),old=btn.textContent;btn.disabled=true;btn.textContent="Enviando…";
+  try{
+    const productos=[];
+    for(const b of $$("#prods .pb")){
+      const q=s=>b.querySelector(s),fotos=[];
+      for(const fl of b._files){const d=await aDataUrl(fl);if(d)fotos.push(d)}
+      productos.push({nombre:q(".p-n").value.trim(),precio:Math.round(+q(".p-p").value)||0,tipo:q(".p-t").value,desc:q(".p-d").value.trim(),
+        int:[...b.querySelectorAll("input[type=checkbox]:checked")].map(x=>x.value),fotos});
+    }
+    const obj={emp:v("emp"),resp:v("resp"),barrio:v("barrio"),tel,retiro:v("retiro"),hist:v("hist"),productos};
+    if(JSON.stringify(obj).length>950000)throw new Error("peso");
+    await FB.enviar(obj);
+    store("ferial_last",String(Date.now()));mostrarOk(obj);
+  }catch(err){
+    console.error(err);
+    aviso(err&&err.message==="peso"?"Las fotos pesan demasiado. Probá con menos fotos o productos y volvé a enviar.":"No se pudo enviar la ficha. Revisá tu conexión e intentá de nuevo.",false);
+  }finally{btn.disabled=false;btn.textContent=old}
+}
 function aviso(t,ok){const m=$("#copiado");m.textContent=t;m.style.color=ok?"var(--green-d)":"var(--red)"}
 function fotosFicha(){const fs=[];$$("#prods .pb").forEach((b,i)=>b._files.forEach((f,k)=>fs.push(new File([f],`producto${i+1}-foto${k+1}.jpg`,{type:f.type||"image/jpeg"}))));return fs}
 $("#ficha").addEventListener("submit",e=>{
@@ -659,6 +804,7 @@ $("#ficha").addEventListener("submit",e=>{
   const f=e.target;
   if(!f.checkValidity()){f.reportValidity();aviso("Faltan datos: completá los campos marcados con * y tildá la casilla de precios de referencia.",false);return}
   aviso("",true);
+  if(window.FB&&FB.ok){guardarFicha(f);return}
   const texto=fichaTexto(),url=`https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(texto)}`,n=fotosFicha().length;
   try{if(navigator.clipboard)navigator.clipboard.writeText(texto).catch(()=>{})}catch(_){}
   $("#wafb").href=url;$("#post").hidden=false;
@@ -683,6 +829,223 @@ $("#copiar").addEventListener("click",async()=>{
 addProd();
 (function(){const n=FERIAS.find(f=>f.fecha>=hoyISO);if(n){selDate=null;const d=new Date(n.fecha+"T00:00");view=new Date(d.getFullYear(),d.getMonth(),1)}})();
 renderEmps();render();renderCal();renderEv();
+
+/* ---------- Datos desde Firebase ---------- */
+const TIPO_EMOJI={"Alimentos":"🥖","Indumentaria":"👕","Servicios":"💼","Impresiones gráficas y 3D":"🖨️","Artesanías/Arte":"🧺","Regalería":"🎁"};
+const FONDOS=["#c9772b","#6b8f3a","#2c6fbb","#7b3fa0","#d1437a","#2f7f86","#cf3b4a"];
+const okFoto=x=>typeof x==="string"&&x.startsWith("data:image/jpeg");
+function docAEmp(d){
+  const prods=d.productos||[],emoji=TIPO_EMOJI[(prods[0]||{}).tipo]||"🧺";
+  let h=0;for(const ch of String(d.id))h=(h*31+ch.charCodeAt(0))>>>0;const bg=FONDOS[h%FONDOS.length];
+  const frases=(String(d.hist||"").match(/[^.!?]+[.!?]*/g)||[]).map(x=>x.trim()).filter(Boolean).slice(0,3);
+  const historia=(frases.length?frases:[`Somos ${d.emp}, del barrio ${d.barrio}. ¡Gracias por comprar local!`]).map(t=>({e:emoji,bg,t}));
+  const fp=prods.map(p=>(p.fotos||[]).find(okFoto)).find(Boolean);
+  if(fp)historia.push({img:fp,bg,t:"Un vistazo a lo que hacemos"});
+  return {id:d.id,nombre:d.emp,dueno:d.resp,emoji,barrio:d.barrio,tel:d.tel,retiro:d.retiro,historia};
+}
+function docAProd(d,p,i){
+  const fotos=(p.fotos||[]).filter(okFoto);
+  return {id:d.id+"_"+i,emp:d.id,nombre:p.nombre,precio:+p.precio||0,tipo:p.tipo,int:p.int||[],desc:p.desc,foto:fotos[0],fotos,e:TIPO_EMOJI[p.tipo]||"🛍️",c:["#f0d9a8","#d2a55a"]};
+}
+function aplicarDatos(emps,prods){
+  EMPS.length=0;PRODS.length=0;emps.forEach(e=>EMPS.push(e));prods.forEach(p=>PRODS.push(p));
+  reindex();renderEmps();render();renderBarChips();pintarMarkers();renderEv();
+}
+function aplicarFerias(list){
+  FERIAS.length=0;list.forEach(x=>FERIAS.push(x));indexFerias();selDate=null;
+  const n=FERIAS.find(f=>f.fecha>=hoyISO);if(n){const d=new Date(n.fecha+"T00:00");view=new Date(d.getFullYear(),d.getMonth(),1)}
+  pintarMarkers();renderCal();renderEv();
+}
+window.FER={LIVE,CENTRO,config:FIREBASE_CONFIG,go,esc,money,normTel,okFoto,BARRIOS,TIPOS,INTENCIONES,ADMIN_WA,
+  setData(docs){
+    estado="ok";const emps=[],prods=[];
+    docs.slice().sort((a,b)=>((a.creado&&a.creado.seconds)||0)-((b.creado&&b.creado.seconds)||0)).forEach(d=>{emps.push(docAEmp(d));(d.productos||[]).forEach((p,i)=>prods.push(docAProd(d,p,i)))});
+    aplicarDatos(emps,prods);
+  },
+  setFerias(docs){
+    aplicarFerias(docs.filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d.fecha)&&isFinite(d.lat)&&isFinite(d.lng)).map(d=>({id:d.id,fecha:d.fecha,lugar:String(d.lugar||""),hora:String(d.hora||""),desc:String(d.desc||""),lat:+d.lat,lng:+d.lng,emps:Array.isArray(d.emps)?d.emps:[]})));
+  },
+  error(){estado="error";if(!PRODS.length)render()}
+};
+if(LIVE){
+  $("#introficha").textContent="Completá los datos y subí las fotos. Al enviar, tu ficha le llega a la administración, que la revisa y la publica en el catálogo.";
+  $("#ficha button[type=submit]").textContent="📨 Enviar ficha";
+}
+</script>
+<script type="module">
+const FER=window.FER,$=s=>document.querySelector(s);
+const esc=FER.esc,okFoto=FER.okFoto;
+function ruta(){if(location.hash==="#admin")FER.go("admin")}
+addEventListener("hashchange",ruta);ruta();
+const admMsg=(t,ok)=>{const m=$("#adm-msg");m.textContent=t||"";m.style.color=ok?"var(--green-d)":"var(--red)"};
+
+if(!FER.LIVE){
+  $("#adm-login").innerHTML='<div class="notice">Firebase todavía no está conectado. Pegá tu configuración en <b>FIREBASE_CONFIG</b> (arriba del script) para activar el panel y las fichas automáticas.</div>';
+}else{
+  iniciar().catch(e=>{console.error(e);FER.error();admMsg("No se pudo conectar con Firebase: "+(e.code||e.message))});
+}
+
+async function iniciar(){
+  const V="10.14.1",B="https://www.gstatic.com/firebasejs/"+V+"/";
+  const [A,S,H]=await Promise.all([import(B+"firebase-app.js"),import(B+"firebase-firestore.js"),import(B+"firebase-auth.js")]);
+  const app=A.initializeApp(FER.config);
+  let db;try{db=S.initializeFirestore(app,{localCache:S.persistentLocalCache({tabManager:S.persistentMultipleTabManager()})})}catch(e){db=S.getFirestore(app)}
+  const col=S.collection(db,"fichas");
+
+  // Público: solo ve las fichas aprobadas, en vivo
+  S.onSnapshot(S.query(col,S.where("status","==","aprobada")),
+    snap=>FER.setData(snap.docs.map(d=>({id:d.id,...d.data()}))),
+    err=>{console.error(err);FER.error()});
+  window.FB={ok:true,enviar:o=>S.addDoc(col,{...o,status:"pendiente",creado:S.serverTimestamp()})};
+
+  // Administración
+  const auth=H.getAuth(app);
+  let fichas=[],filtro="pendiente",editing=null,unsub=null,feriasRaw=[],rechazando=null,feMap=null,feMark=null,feLL=null,feEdit=null,feSel=new Set();
+  const ESTADOS={pendiente:"Pendientes",aprobada:"Aprobadas",rechazada:"Rechazadas"};
+  const lblInt=id=>(FER.INTENCIONES.find(i=>i.id===id)||{}).label||id;
+  const fmt=t=>t&&t.seconds?new Date(t.seconds*1000).toLocaleString("es-AR",{dateStyle:"short",timeStyle:"short"}):"";
+
+  $("#adm-in").onclick=()=>H.signInWithPopup(auth,new H.GoogleAuthProvider()).catch(e=>admMsg("No se pudo ingresar: "+(e.code||e.message)));
+  $("#adm-out").onclick=()=>H.signOut(auth);
+  H.onAuthStateChanged(auth,u=>{
+    if(unsub){unsub();unsub=null}
+    $("#adm-login").hidden=!!u;$("#adm-main").hidden=!u;fichas=[];
+    if(!u)return;
+    $("#adm-user").textContent=u.email;admMsg("");
+    unsub=S.onSnapshot(col,snap=>{fichas=snap.docs.map(d=>({id:d.id,...d.data()}));admMsg("");if(!editing&&!rechazando)renderAdm()},
+      err=>admMsg(err.code==="permission-denied"?"Esta cuenta no tiene permisos de administración. Salí e ingresá con la cuenta autorizada en las reglas de Firestore.":"Error: "+(err.code||err.message)));
+  });
+
+  function cardVer(f){
+    const prods=(f.productos||[]).map(p=>`<div class="ap"><div class="apf">${(p.fotos||[]).filter(okFoto).map(x=>`<img src="${esc(x)}" alt="">`).join("")||'<span class="hint">Sin foto</span>'}</div>
+      <div><b>${esc(p.nombre)}</b> · ${FER.money(+p.precio||0)}<br><span class="hint">${esc(p.tipo)}${(p.int||[]).length?" · "+p.int.map(i=>esc(lblInt(i))).join(", "):""}</span><br>${esc(p.desc)}</div></div>`).join("");
+    const a=[];
+    if(f.status!=="aprobada")a.push(`<button class="btn verde" data-act="st" data-st="aprobada" data-id="${esc(f.id)}">✅ Aceptar y publicar</button>`);
+    if(f.status!=="rechazada")a.push(`<button class="btn rojo" data-act="no" data-id="${esc(f.id)}">❌ ${f.status==="aprobada"?"Quitar del catálogo":"Rechazar"}</button>`);
+    if(f.status==="rechazada")a.push(`<button class="btn" data-act="st" data-st="pendiente" data-id="${esc(f.id)}">↩ Volver a pendiente</button>`);
+    a.push(`<button class="btn" data-act="edit" data-id="${esc(f.id)}">✏️ Editar</button>`);
+    const tel=String(f.tel||"").replace(/\D/g,"");
+    a.push(`<a class="btn" href="https://wa.me/${tel}?text=${encodeURIComponent(f.status==="rechazada"?"Hola "+(f.resp||"")+", te escribimos del Directorio Local. Revisamos la ficha de "+(f.emp||"tu emprendimiento")+" y por ahora no pudimos publicarla. Motivo: "+(f.motivo||"")+". Cuando lo ajustes, volvé a enviarla.":"Hola "+(f.resp||"")+", te escribimos del Directorio Local por tu ficha de "+(f.emp||"")+".")}" target="_blank" rel="noopener">💬 Escribirle</a>`);
+    a.push(`<button class="btn danger" data-act="del" data-id="${esc(f.id)}">🗑 Eliminar</button>`);
+    return `<div class="fc"><h3>${esc(f.emp)} <span class="bdg ${esc(f.status)}">${esc(ESTADOS[f.status]||f.status)}</span></h3>
+      <div class="l">${esc(f.resp)} · Barrio ${esc(f.barrio)} · WhatsApp ${esc(f.tel)} · ${esc(fmt(f.creado))}</div>
+      <p style="font-size:14px"><b>Retiro/entrega:</b> ${esc(f.retiro)}</p>${f.hist?`<p style="font-size:14px"><b>Historia:</b> ${esc(f.hist)}</p>`:""}${prods}${f.status==="rechazada"&&f.motivo?`<p class="mot-r">Motivo: ${esc(f.motivo)}</p>`:""}<div class="acts">${a.join("")}</div>${rechazando===f.id?`<div class="motivo"><b>¿Por qué se ${f.status==="aprobada"?"quita":"rechaza"}?</b> <span class="hint">Es obligatorio. Se lo podés mandar por WhatsApp al emprendedor.</span><textarea class="in" id="mot-txt" rows="3" maxlength="300" placeholder="Ej: Falta una foto clara del producto y el precio actual."></textarea><div class="acts"><button class="btn rojo" data-act="noconf" data-id="${esc(f.id)}">Confirmar</button><button class="btn" data-act="nocancel">Cancelar</button></div></div>`:""}</div>`;
+  }
+  function cardEdit(f){
+    const bar=FER.BARRIOS.concat(["Otro"]);
+    return `<div class="fc" data-card="${esc(f.id)}"><h3>✏️ Editando: ${esc(f.emp)}</h3>
+      <div class="ff two" style="margin-top:10px">
+        <label>Emprendimiento<input class="in" name="emp" value="${esc(f.emp)}" maxlength="60"></label>
+        <label>Responsable<input class="in" name="resp" value="${esc(f.resp)}" maxlength="60"></label>
+        <label>Barrio<select class="in" name="barrio">${bar.map(b=>`<option ${b===f.barrio?"selected":""}>${esc(b)}</option>`).join("")}</select></label>
+        <label>WhatsApp<input class="in" name="tel" value="${esc(f.tel)}"></label></div>
+      <label style="margin-top:12px">Retiro / entrega<input class="in" name="retiro" value="${esc(f.retiro)}" maxlength="100"></label>
+      <label style="margin-top:12px">Historia<textarea class="in" name="hist" rows="3" maxlength="400">${esc(f.hist||"")}</textarea></label>
+      ${(f.productos||[]).map((p,i)=>`<div class="pb ep" data-i="${i}"><div class="pbh"><b>Producto ${i+1}</b><label class="chk"><input type="checkbox" name="delp"> Quitar producto</label></div>
+        <div class="ff two"><label>Nombre<input class="in" name="pn" value="${esc(p.nombre)}" maxlength="60"></label>
+        <label>Precio (ARS)<input class="in" name="pp" type="number" min="0" value="${esc(p.precio)}"></label>
+        <label>Tipo<select class="in" name="pt">${FER.TIPOS.map(t=>`<option ${t===p.tipo?"selected":""}>${esc(t)}</option>`).join("")}</select></label></div>
+        <label style="margin-top:10px">Descripción<textarea class="in" name="pd" rows="2" maxlength="120">${esc(p.desc)}</textarea></label>
+        <div class="chips" style="margin-top:10px">${FER.INTENCIONES.map(it=>`<label class="chk"><input type="checkbox" name="pi" value="${it.id}" ${(p.int||[]).includes(it.id)?"checked":""}> ${it.label}</label>`).join("")}</div>
+        <div class="thumbs">${(p.fotos||[]).filter(okFoto).map((x,k)=>`<label class="th2"><img src="${esc(x)}" alt=""><span><input type="checkbox" name="delf" value="${k}"> quitar</span></label>`).join("")}</div></div>`).join("")}
+      <div class="acts"><button class="btn f" data-act="save" data-id="${esc(f.id)}">Guardar cambios</button><button class="btn" data-act="cancel">Cancelar</button></div></div>`;
+  }
+  function renderAdm(){
+    const cnt=e=>fichas.filter(f=>f.status===e).length;
+    $("#adm-tabs").innerHTML=Object.keys(ESTADOS).map(e=>`<button class="chip ${e===filtro?"on":""}" data-f="${e}">${ESTADOS[e]} · ${cnt(e)}</button>`).join("")+`<button class="chip ${filtro==="ferias"?"on":""}" data-f="ferias">📅 Ferias · ${feriasRaw.length}</button>`;
+    const esF=filtro==="ferias";
+    $("#adm-list").hidden=esF;$("#adm-ferias").hidden=!esF;
+    if(esF){renderFerias();return}
+    const lista=fichas.filter(f=>f.status===filtro).sort((a,b)=>((b.creado&&b.creado.seconds)||0)-((a.creado&&a.creado.seconds)||0));
+    $("#adm-list").innerHTML=lista.map(f=>f.id===editing?cardEdit(f):cardVer(f)).join("")||`<div class="empty" style="padding:30px 0">No hay fichas en esta lista.</div>`;
+  }
+  $("#adm-tabs").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(b){filtro=b.dataset.f;editing=null;renderAdm()}});
+
+  // ----- Ferias (calendario + mapa) -----
+  S.onSnapshot(S.collection(db,"ferias"),snap=>{
+    feriasRaw=snap.docs.map(d=>({id:d.id,...d.data()}));FER.setFerias(feriasRaw);
+    if(filtro==="ferias"||!editing)renderAdm();
+  },err=>console.error(err));
+  function feInitMap(){
+    if(feMap||!window.L)return;
+    feMap=L.map("adm-map").setView(feLL||FER.CENTRO,14);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(feMap);
+    feMap.on("click",e=>fePon(e.latlng.lat,e.latlng.lng));
+  }
+  function fePon(lat,lng){
+    feLL=[+(+lat).toFixed(6),+(+lng).toFixed(6)];
+    if(feMap){if(feMark)feMark.setLatLng(feLL);else feMark=L.marker(feLL).addTo(feMap)}
+    $("#fe-ll").textContent="Ubicación marcada: "+feLL.join(", ");
+  }
+  function renderFerias(){
+    feInitMap();setTimeout(()=>feMap&&feMap.invalidateSize(),60);
+    const ap=fichas.filter(f=>f.status==="aprobada");
+    $("#fe-emps").innerHTML=ap.map(f=>`<label class="chk"><input type="checkbox" value="${esc(f.id)}" ${feSel.has(f.id)?"checked":""}> ${esc(f.emp)}</label>`).join("")||'<span class="hint">Todavía no hay emprendedores aprobados.</span>';
+    const hoy=new Date().toLocaleDateString("sv-SE");
+    $("#fe-list").innerHTML=feriasRaw.slice().sort((a,b)=>String(b.fecha).localeCompare(String(a.fecha))).map(x=>{const pas=String(x.fecha)<hoy;
+      return `<div class="fc"><h3>📍 ${esc(x.lugar)} <span class="bdg ${pas?"rechazada":"aprobada"}">${pas?"Pasada":"Próxima"}</span></h3><div class="l">${esc(x.fecha)} · ${esc(x.hora||"")} · ${(x.emps||[]).length} emprendedores</div>
+      <div class="acts"><button class="btn" data-fa="edit" data-id="${esc(x.id)}">✏️ Editar</button><button class="btn danger" data-fa="del" data-id="${esc(x.id)}">🗑 Eliminar</button></div></div>`}).join("")||'<div class="empty" style="padding:24px 0">Todavía no cargaste ferias.</div>';
+  }
+  function feReset(){
+    feEdit=null;feSel=new Set();feLL=null;if(feMark){feMark.remove();feMark=null}
+    ["fecha","hora","lugar","desc"].forEach(k=>$("#fe-"+k).value="");
+    $("#fe-ll").textContent="";$("#fh").textContent="Nueva feria";$("#fe-cancel").hidden=true;renderFerias();
+  }
+  $("#fe-emps").addEventListener("change",e=>{const c=e.target.closest("input");if(!c)return;c.checked?feSel.add(c.value):feSel.delete(c.value)});
+  $("#fe-cancel").onclick=feReset;
+  $("#fe-save").onclick=async()=>{
+    const fecha=$("#fe-fecha").value,lugar=$("#fe-lugar").value.trim();
+    if(!fecha||!lugar){admMsg("Completá la fecha y el lugar.");return}
+    if(!feLL){admMsg("Marcá el lugar en el mapa tocándolo.");return}
+    const d={fecha,lugar,hora:$("#fe-hora").value.trim(),desc:$("#fe-desc").value.trim(),lat:feLL[0],lng:feLL[1],emps:[...feSel]};
+    try{
+      if(feEdit)await S.updateDoc(S.doc(db,"ferias",feEdit),d);else await S.addDoc(S.collection(db,"ferias"),d);
+      admMsg("Feria guardada: ya se ve en “Próximas ferias”.",true);feReset();
+    }catch(err){console.error(err);admMsg("No se pudo guardar la feria: "+(err.code||err.message))}
+  };
+  $("#fe-list").addEventListener("click",async e=>{
+    const b=e.target.closest("[data-fa]");if(!b)return;const x=feriasRaw.find(r=>r.id===b.dataset.id);if(!x)return;
+    try{
+      if(b.dataset.fa==="del"){if(confirm("¿Eliminar esta feria?")){await S.deleteDoc(S.doc(db,"ferias",x.id));admMsg("Feria eliminada.",true)}}
+      else{
+        feEdit=x.id;feSel=new Set(x.emps||[]);$("#fe-fecha").value=x.fecha||"";$("#fe-hora").value=x.hora||"";$("#fe-lugar").value=x.lugar||"";$("#fe-desc").value=x.desc||"";
+        $("#fh").textContent="Editando feria";$("#fe-cancel").hidden=false;fePon(x.lat,x.lng);if(feMap)feMap.setView(feLL,15);renderFerias();window.scrollTo({top:$("#adm-ferias").offsetTop,behavior:"smooth"});
+      }
+    }catch(err){admMsg("No se pudo completar la acción: "+(err.code||err.message))}
+  });
+
+  async function guardar(id){
+    const f=fichas.find(x=>x.id===id),c=document.querySelector(`[data-card="${id}"]`);
+    if(!f||!c)return;
+    const g=n=>c.querySelector(`[name="${n}"]`).value.trim(),productos=[];
+    c.querySelectorAll(".ep").forEach(el=>{
+      if(el.querySelector('[name="delp"]').checked)return;
+      const o=f.productos[+el.dataset.i],quitar=[...el.querySelectorAll('[name="delf"]:checked')].map(x=>+x.value),q=n=>el.querySelector(`[name="${n}"]`);
+      productos.push({nombre:q("pn").value.trim(),precio:Math.round(+q("pp").value)||0,tipo:q("pt").value,desc:q("pd").value.trim(),
+        int:[...el.querySelectorAll('[name="pi"]:checked')].map(x=>x.value),fotos:(o.fotos||[]).filter(okFoto).filter((_,k)=>!quitar.includes(k))});
+    });
+    if(!productos.length){admMsg("La ficha necesita al menos un producto (o eliminala).");return}
+    const tel=FER.normTel(g("tel"));if(!tel){admMsg("WhatsApp inválido: 549 + código de área + número.");return}
+    await S.updateDoc(S.doc(db,"fichas",id),{emp:g("emp"),resp:g("resp"),barrio:g("barrio"),tel,retiro:g("retiro"),hist:g("hist"),productos});
+    editing=null;renderAdm();admMsg("Cambios guardados.",true);
+  }
+  $("#adm-list").addEventListener("click",async e=>{
+    const b=e.target.closest("[data-act]");if(!b)return;
+    const id=b.dataset.id,act=b.dataset.act;
+    try{
+      if(act==="no"){rechazando=id;renderAdm();const t=$("#mot-txt");if(t)t.focus()}
+      else if(act==="nocancel"){rechazando=null;renderAdm()}
+      else if(act==="noconf"){
+        const m=($("#mot-txt").value||"").trim();if(m.length<5){admMsg("Escribí el motivo (mínimo 5 letras) antes de confirmar.");return}
+        await S.updateDoc(S.doc(db,"fichas",id),{status:"rechazada",motivo:m,revisadaEn:S.serverTimestamp()});rechazando=null;renderAdm();admMsg("Ficha rechazada. Avisale al emprendedor con el botón “Escribirle”.",true)}
+      else if(act==="st"){await S.updateDoc(S.doc(db,"fichas",id),{status:b.dataset.st,motivo:S.deleteField(),revisadaEn:S.serverTimestamp()});admMsg(b.dataset.st==="aprobada"?"✅ Publicada en el catálogo.":"Ficha actualizada.",true)}
+      else if(act==="edit"){editing=id;renderAdm()}
+      else if(act==="cancel"){editing=null;renderAdm()}
+      else if(act==="save"){await guardar(id)}
+      else if(act==="del"){if(confirm("¿Eliminar esta ficha para siempre?")){await S.deleteDoc(S.doc(db,"fichas",id));admMsg("Ficha eliminada.",true)}}
+    }catch(err){console.error(err);admMsg("No se pudo completar la acción: "+(err.code||err.message))}
+  });
+}
 </script>
 </body>
 </html>
